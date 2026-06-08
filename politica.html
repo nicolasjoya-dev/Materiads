@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LinkHub — Tu colección de recursos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,500;0,9..40,700;1,9..40,300&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #13131a;
+      --surface2: #1c1c28;
+      --border: rgba(255,255,255,0.07);
+      --accent: #e8ff47;
+      --accent2: #47d4ff;
+      --text: #f0f0f5;
+      --muted: #7a7a99;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 80% 10%, rgba(232,255,71,0.06) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 10% 80%, rgba(71,212,255,0.05) 0%, transparent 60%);
+      pointer-events: none; z-index: 0;
+    }
+
+    /* ── HEADER ─────────────────────────────────── */
+    header {
+      position: relative; z-index: 10;
+      padding: 2.5rem 4rem 0;
+      display: flex; align-items: flex-end; justify-content: space-between;
+      flex-wrap: wrap; gap: 1rem;
+    }
+    .logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.4rem, 6vw, 4rem);
+      letter-spacing: 0.04em;
+      line-height: 1;
+    }
+    .logo span { color: var(--accent); }
+    .header-right { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .header-meta {
+      font-size: .8rem;
+      color: var(--muted);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .btn-admin-toggle {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 8px;
+      padding: .4rem .9rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .78rem;
+      letter-spacing: .06em;
+      cursor: pointer;
+      transition: all .2s;
+      display: flex; align-items: center; gap: .4rem;
+    }
+    .btn-admin-toggle:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-admin-toggle.active {
+      background: rgba(232,255,71,0.1);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .admin-badge {
+      display: inline-block;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--muted);
+      transition: background .2s;
+    }
+    .btn-admin-toggle.active .admin-badge { background: var(--accent); }
+
+    /* ── MAIN ───────────────────────────────────── */
+    main {
+      position: relative; z-index: 5;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 3rem 2rem 6rem;
+    }
+
+    /* ── SECTION TITLES ─────────────────────────── */
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.2rem;
+      letter-spacing: .15em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      display: flex; align-items: center; gap: .75rem;
+    }
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── ADMIN PANEL ─────────────────────────────── */
+    #admin-panel {
+      display: none;
+      margin-bottom: 3rem;
+    }
+    #admin-panel.visible { display: block; }
+
+    .add-form {
+      background: var(--surface);
+      border: 1px solid rgba(232,255,71,0.15);
+      border-radius: 16px;
+      padding: 2rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      position: relative;
+    }
+    .add-form::before {
+      content: '🔒 MODO ADMIN';
+      position: absolute;
+      top: -1px; right: 20px;
+      background: var(--accent);
+      color: #0a0a0f;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: .75rem;
+      letter-spacing: .12em;
+      padding: .15rem .7rem;
+      border-radius: 0 0 8px 8px;
+    }
+    .add-form .full { grid-column: 1 / -1; }
+    .field label {
+      display: block;
+      font-size: .75rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: .5rem;
+    }
+    .field input, .field textarea, .field select {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .95rem;
+      padding: .75rem 1rem;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .field input:focus, .field textarea:focus, .field select:focus {
+      border-color: var(--accent);
+    }
+    .field textarea { resize: vertical; min-height: 80px; }
+    .field select option { background: var(--surface2); }
+
+    .btn-add {
+      grid-column: 1 / -1;
+      background: var(--accent);
+      color: #0a0a0f;
+      border: none;
+      border-radius: 10px;
+      padding: .85rem 2rem;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.1rem;
+      letter-spacing: .1em;
+      cursor: pointer;
+      transition: opacity .2s, transform .15s;
+    }
+    .btn-add:hover { opacity: .85; transform: translateY(-1px); }
+
+    /* ── PANEL EXPORTAR CÓDIGO ───────────────────── */
+    #export-panel {
+      margin-top: 1.5rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+    }
+    #export-panel p {
+      font-size: .82rem;
+      color: var(--muted);
+      margin-bottom: .8rem;
+      line-height: 1.5;
+    }
+    #export-panel p strong { color: var(--accent); }
+    .btn-export {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      padding: .55rem 1.2rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .84rem;
+      cursor: pointer;
+      transition: all .2s;
+      margin-right: .5rem;
+    }
+    .btn-export:hover { border-color: var(--accent2); color: var(--accent2); }
+
+    /* ── FILTERS ────────────────────────────────── */
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .6rem;
+      margin-bottom: 2rem;
+    }
+    .filter-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .82rem;
+      padding: .4rem 1.1rem;
+      cursor: pointer;
+      transition: all .2s;
+      letter-spacing: .04em;
+    }
+    .filter-btn.active, .filter-btn:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #0a0a0f;
+    }
+
+    /* ── GRID ───────────────────────────────────── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    /* ── CARD ───────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+      transition: transform .25s, box-shadow .25s, border-color .25s;
+      animation: fadeUp .4s ease both;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 48px rgba(0,0,0,.4);
+      border-color: rgba(232,255,71,0.25);
+    }
+    .card-accent-bar { height: 4px; width: 100%; }
+    .card-body { padding: 1.4rem 1.5rem 1rem; }
+    .card-tag {
+      display: inline-block;
+      font-size: .7rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      background: var(--surface2);
+      border-radius: 100px;
+      padding: .25rem .75rem;
+      margin-bottom: .9rem;
+      color: var(--muted);
+    }
+    .card-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.45rem;
+      letter-spacing: .04em;
+      line-height: 1.15;
+      margin-bottom: .6rem;
+    }
+    .card-desc {
+      font-size: .88rem;
+      color: var(--muted);
+      line-height: 1.6;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .9rem 1.5rem 1.2rem;
+      border-top: 1px solid var(--border);
+      margin-top: .8rem;
+    }
+    .card-footer .domain {
+      font-size: .78rem;
+      color: var(--muted);
+      font-style: italic;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 60%;
+    }
+    .card-footer .btn-info {
+      font-size: .78rem;
+      font-family: 'Bebas Neue', sans-serif;
+      letter-spacing: .08em;
+      color: var(--accent);
+      background: rgba(232,255,71,0.1);
+      border: 1px solid rgba(232,255,71,0.2);
+      border-radius: 8px;
+      padding: .3rem .8rem;
+      transition: background .2s;
+    }
+    .card:hover .card-footer .btn-info { background: rgba(232,255,71,0.2); }
+
+    .card-delete {
+      position: absolute;
+      top: 12px; right: 12px;
+      background: rgba(255,80,80,0.1);
+      border: 1px solid rgba(255,80,80,0.2);
+      color: rgba(255,100,100,0.7);
+      border-radius: 8px;
+      width: 28px; height: 28px;
+      font-size: .85rem;
+      cursor: pointer;
+      display: none;
+      align-items: center; justify-content: center;
+      transition: background .2s;
+    }
+    .card-delete:hover { background: rgba(255,80,80,0.3); color: #ff8080; }
+    body.admin-mode .card-delete { display: flex; }
+
+    /* ── MODAL ──────────────────────────────────── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.75);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      display: flex; align-items: center; justify-content: center;
+      padding: 1.5rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      max-width: 540px;
+      width: 100%;
+      position: relative;
+      transform: translateY(24px) scale(.97);
+      transition: transform .3s;
+      overflow: hidden;
+    }
+    .modal-overlay.open .modal { transform: translateY(0) scale(1); }
+    .modal-accent { height: 5px; width: 100%; }
+    .modal-inner { padding: 2rem 2rem 2.5rem; }
+    .modal-tag {
+      font-size: .72rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: .5rem;
+    }
+    .modal-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.2rem;
+      letter-spacing: .04em;
+      line-height: 1.1;
+      margin-bottom: 1.2rem;
+    }
+    .modal-desc {
+      font-size: .95rem;
+      color: rgba(240,240,245,.75);
+      line-height: 1.7;
+      margin-bottom: 1.8rem;
+    }
+    .modal-link {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      text-decoration: none;
+      transition: border-color .2s, background .2s;
+    }
+    .modal-link:hover { border-color: var(--accent2); background: rgba(71,212,255,0.05); }
+    .modal-link .link-icon { font-size: 1.3rem; flex-shrink: 0; }
+    .modal-link .link-text { flex: 1; min-width: 0; }
+    .modal-link .link-label {
+      font-size: .72rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: .15rem;
+    }
+    .modal-link .link-url {
+      font-size: .88rem;
+      color: var(--accent2);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .modal-link .link-arrow { font-size: 1.1rem; color: var(--accent2); flex-shrink: 0; }
+    .modal-close {
+      position: absolute;
+      top: 14px; right: 14px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 8px;
+      width: 32px; height: 32px;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: color .2s;
+    }
+    .modal-close:hover { color: var(--text); }
+
+    /* ── MODAL CONTRASEÑA ────────────────────────── */
+    .pw-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.8);
+      backdrop-filter: blur(12px);
+      z-index: 200;
+      display: flex; align-items: center; justify-content: center;
+      padding: 1.5rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s;
+    }
+    .pw-overlay.open { opacity: 1; pointer-events: all; }
+
+    .pw-box {
+      background: var(--surface);
+      border: 1px solid rgba(232,255,71,0.2);
+      border-radius: 20px;
+      padding: 2.5rem;
+      max-width: 380px;
+      width: 100%;
+      text-align: center;
+      transform: scale(.95);
+      transition: transform .3s;
+    }
+    .pw-overlay.open .pw-box { transform: scale(1); }
+
+    .pw-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .pw-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.8rem;
+      letter-spacing: .06em;
+      margin-bottom: .5rem;
+    }
+    .pw-sub {
+      font-size: .85rem;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+    .pw-input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      padding: .8rem 1rem;
+      outline: none;
+      text-align: center;
+      letter-spacing: .2em;
+      margin-bottom: 1rem;
+      transition: border-color .2s;
+    }
+    .pw-input:focus { border-color: var(--accent); }
+    .pw-input.error { border-color: #ff6464; animation: shake .3s; }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+    .btn-pw-enter {
+      width: 100%;
+      background: var(--accent);
+      color: #0a0a0f;
+      border: none;
+      border-radius: 10px;
+      padding: .8rem;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.1rem;
+      letter-spacing: .1em;
+      cursor: pointer;
+      transition: opacity .2s;
+      margin-bottom: .75rem;
+    }
+    .btn-pw-enter:hover { opacity: .85; }
+    .btn-pw-cancel {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .82rem;
+      cursor: pointer;
+      transition: color .2s;
+    }
+    .btn-pw-cancel:hover { color: var(--text); }
+
+    /* ── QR SECTION ─────────────────────────────── */
+    .qr-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-top: 3.5rem;
+      display: flex;
+      gap: 2rem;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+    .qr-left { flex: 1; min-width: 200px; }
+    .qr-left h3 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.6rem;
+      letter-spacing: .06em;
+      margin-bottom: .5rem;
+    }
+    .qr-left p { font-size: .88rem; color: var(--muted); line-height: 1.6; margin-bottom: 1.2rem; }
+    .qr-input-row { display: flex; gap: .75rem; flex-wrap: wrap; }
+    .qr-input-row input {
+      flex: 1;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .9rem;
+      padding: .7rem 1rem;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .qr-input-row input:focus { border-color: var(--accent2); }
+    .btn-qr {
+      background: var(--accent2);
+      color: #0a0a0f;
+      border: none;
+      border-radius: 10px;
+      padding: .7rem 1.4rem;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1rem;
+      letter-spacing: .08em;
+      cursor: pointer;
+      transition: opacity .2s;
+    }
+    .btn-qr:hover { opacity: .85; }
+    .qr-right { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+    #qr-canvas {
+      background: white;
+      border-radius: 12px;
+      padding: 12px;
+      display: none;
+    }
+    .btn-download {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 10px;
+      padding: .55rem 1.2rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .82rem;
+      cursor: pointer;
+      transition: all .2s;
+      display: none;
+    }
+    .btn-download:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── EMPTY STATE ────────────────────────────── */
+    .empty {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--muted);
+    }
+    .empty-icon { font-size: 3rem; margin-bottom: 1rem; }
+    .empty p { font-size: .95rem; }
+
+    /* ── COLOR PALETTES ─────────────────────────── */
+    .p1 { background: linear-gradient(90deg, #e8ff47, #c8e000); }
+    .p2 { background: linear-gradient(90deg, #47d4ff, #0099cc); }
+    .p3 { background: linear-gradient(90deg, #ff6b9d, #cc3366); }
+    .p4 { background: linear-gradient(90deg, #a78bfa, #7c3aed); }
+    .p5 { background: linear-gradient(90deg, #fb923c, #dc4e00); }
+    .p6 { background: linear-gradient(90deg, #34d399, #059669); }
+
+    @media (max-width: 600px) {
+      header { padding: 2rem 1.5rem 0; }
+      main { padding: 2rem 1rem 5rem; }
+      .add-form { grid-template-columns: 1fr; }
+      .add-form .full { grid-column: 1; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Link<span>Hub</span></div>
+  <div class="header-right">
+    <div class="header-meta">Tu colección de recursos</div>
+    <button class="btn-admin-toggle" id="btn-admin-toggle" onclick="requestAdmin()">
+      <span class="admin-badge"></span> Admin
+    </button>
+  </div>
+</header>
+
+<main>
+
+  <!-- PANEL ADMIN (oculto por defecto) -->
+  <div id="admin-panel">
+    <div class="section-title">Agregar recurso</div>
+    <div class="add-form">
+      <div class="field full">
+        <label>Título</label>
+        <input type="text" id="inp-title" placeholder="Ej. Guía de diseño UI" />
+      </div>
+      <div class="field full">
+        <label>Descripción</label>
+        <textarea id="inp-desc" placeholder="Escribe una descripción del recurso…"></textarea>
+      </div>
+      <div class="field">
+        <label>URL de la fuente</label>
+        <input type="url" id="inp-url" placeholder="https://ejemplo.com/recurso" />
+      </div>
+      <div class="field">
+        <label>Categoría</label>
+        <select id="inp-cat">
+          <option value="General">General</option>
+          <option value="Diseño">Diseño</option>
+          <option value="Desarrollo">Desarrollo</option>
+          <option value="Marketing">Marketing</option>
+          <option value="Educación">Educación</option>
+          <option value="Herramientas">Herramientas</option>
+          <option value="Noticias">Noticias</option>
+        </select>
+      </div>
+      <button class="btn-add full" onclick="addCard()">+ Agregar Card</button>
+    </div>
+
+    <div id="export-panel">
+      <p>⚠️ Recuerda: los cambios solo son visibles para ti hasta que copies el código actualizado y lo subas a GitHub. Usa el botón de abajo para <strong>obtener el código listo</strong>.</p>
+      <button class="btn-export" onclick="exportCode()">📋 Copiar código actualizado</button>
+      <button class="btn-export" onclick="logoutAdmin()">🔒 Cerrar sesión admin</button>
+    </div>
+  </div>
+
+  <!-- FILTROS -->
+  <div class="section-title">Recursos</div>
+  <div class="filters" id="filters"></div>
+
+  <!-- GRID DE CARDS -->
+  <div class="grid" id="grid"></div>
+
+  <!-- SECCIÓN QR -->
+  <div class="qr-section">
+    <div class="qr-left">
+      <h3>Genera tu QR</h3>
+      <p>Pon la URL de esta página (GitHub Pages, Netlify, etc.) y genera el código QR para compartirla. Quien lo escanee verá todas tus cards.</p>
+      <div class="qr-input-row">
+        <input type="url" id="qr-url" placeholder="https://tu-sitio.com" />
+        <button class="btn-qr" onclick="generateQR()">Generar</button>
+      </div>
+    </div>
+    <div class="qr-right">
+      <div id="qr-canvas"></div>
+      <button class="btn-download" id="btn-dl" onclick="downloadQR()">⬇ Descargar PNG</button>
+    </div>
+  </div>
+
+</main>
+
+<!-- MODAL CARD -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-accent" id="modal-bar"></div>
+    <div class="modal-inner">
+      <div class="modal-tag" id="modal-tag"></div>
+      <div class="modal-title" id="modal-title"></div>
+      <div class="modal-desc" id="modal-desc"></div>
+      <a class="modal-link" id="modal-link" href="#" target="_blank" rel="noopener">
+        <span class="link-icon">🔗</span>
+        <div class="link-text">
+          <div class="link-label">Fuente original</div>
+          <div class="link-url" id="modal-url"></div>
+        </div>
+        <span class="link-arrow">↗</span>
+      </a>
+    </div>
+    <button class="modal-close" onclick="closeModalDirect()">✕</button>
+  </div>
+</div>
+
+<!-- MODAL CONTRASEÑA -->
+<div class="pw-overlay" id="pw-overlay">
+  <div class="pw-box">
+    <div class="pw-icon">🔐</div>
+    <div class="pw-title">Acceso Admin</div>
+    <div class="pw-sub">Ingresa la contraseña para activar el modo de edición.</div>
+    <input type="password" class="pw-input" id="pw-input"
+      placeholder="••••••••" onkeydown="if(event.key==='Enter') checkPassword()" />
+    <button class="btn-pw-enter" onclick="checkPassword()">Entrar</button>
+    <button class="btn-pw-cancel" onclick="closePwModal()">Cancelar</button>
+  </div>
+</div>
+
+<script>
+  // ─── ⚙️ CONFIGURACIÓN ─────────────────────────────────────
+  // CAMBIA ESTA CONTRASEÑA antes de subir a GitHub
+  const ADMIN_PASSWORD = 'admin1234';
+
+  // ─── 📦 CARDS (edítalas aquí o usando el formulario admin) ─
+  // Cuando agregues/elimines desde el panel, usa "Copiar código"
+  // y reemplaza este bloque con el nuevo. Luego sube a GitHub.
+  const CARDS_DATA = [
+    {
+      id: 1,
+      title: 'MDN Web Docs',
+      desc: 'La referencia más completa sobre tecnologías web: HTML, CSS, JavaScript y mucho más. Ideal para desarrolladores de todos los niveles.',
+      url: 'https://developer.mozilla.org',
+      cat: 'Desarrollo'
+    },
+    {
+      id: 2,
+      title: 'Figma',
+      desc: 'Herramienta de diseño colaborativo en la nube para interfaces, prototipos y sistemas de diseño. Estándar de la industria.',
+      url: 'https://figma.com',
+      cat: 'Diseño'
+    },
+    {
+      id: 3,
+      title: 'Coolors',
+      desc: 'Generador de paletas de colores rápido y hermoso. Crea, guarda y comparte esquemas de colores perfectos para tus proyectos.',
+      url: 'https://coolors.co',
+      cat: 'Herramientas'
+    }
+  ];
+  // ────────────────────────────────────────────────────────────
+
+  const palettes = ['p1','p2','p3','p4','p5','p6'];
+  const paletteMap = {};
+
+  // Las cards viven en memoria (vienen del código, no del localStorage)
+  let cards = JSON.parse(JSON.stringify(CARDS_DATA));
+  let nextId = Math.max(0, ...cards.map(c => c.id)) + 1;
+  let activeFilter = 'Todos';
+  let isAdmin = false;
+
+  // ─── PALETA ──────────────────────────────────────────────
+  function getPalette(id) {
+    if (!paletteMap[id]) {
+      const idx = (id - 1) % palettes.length;
+      paletteMap[id] = palettes[idx];
+    }
+    return paletteMap[id];
+  }
+
+  function getDomain(url) {
+    try { return new URL(url).hostname.replace('www.',''); } catch { return url; }
+  }
+
+  // ─── ADMIN ───────────────────────────────────────────────
+  function requestAdmin() {
+    if (isAdmin) { logoutAdmin(); return; }
+    document.getElementById('pw-overlay').classList.add('open');
+    setTimeout(() => document.getElementById('pw-input').focus(), 200);
+  }
+
+  function closePwModal() {
+    document.getElementById('pw-overlay').classList.remove('open');
+    document.getElementById('pw-input').value = '';
+    document.getElementById('pw-input').classList.remove('error');
+  }
+
+  function checkPassword() {
+    const val = document.getElementById('pw-input').value;
+    if (val === ADMIN_PASSWORD) {
+      isAdmin = true;
+      closePwModal();
+      document.body.classList.add('admin-mode');
+      document.getElementById('admin-panel').classList.add('visible');
+      document.getElementById('btn-admin-toggle').classList.add('active');
+    } else {
+      const inp = document.getElementById('pw-input');
+      inp.classList.add('error');
+      inp.value = '';
+      setTimeout(() => inp.classList.remove('error'), 600);
+    }
+  }
+
+  function logoutAdmin() {
+    isAdmin = false;
+    document.body.classList.remove('admin-mode');
+    document.getElementById('admin-panel').classList.remove('visible');
+    document.getElementById('btn-admin-toggle').classList.remove('active');
+  }
+
+  // ─── RENDER ──────────────────────────────────────────────
+  function renderFilters() {
+    const cats = ['Todos', ...new Set(cards.map(c => c.cat))];
+    document.getElementById('filters').innerHTML = cats.map(c => `
+      <button class="filter-btn ${c === activeFilter ? 'active' : ''}"
+        onclick="setFilter('${c}')">${c} <span style="opacity:.5">${c==='Todos'?cards.length:cards.filter(x=>x.cat===c).length}</span>
+      </button>`).join('');
+  }
+
+  function setFilter(cat) {
+    activeFilter = cat;
+    renderAll();
+  }
+
+  function renderGrid() {
+    const grid = document.getElementById('grid');
+    const filtered = activeFilter === 'Todos' ? cards : cards.filter(c => c.cat === activeFilter);
+    if (filtered.length === 0) {
+      grid.innerHTML = `<div class="empty"><div class="empty-icon">📭</div><p>No hay recursos aquí todavía.<br>¡Agrega el primero!</p></div>`;
+      return;
+    }
+    grid.innerHTML = filtered.map((c, i) => {
+      const pal = getPalette(c.id);
+      return `
+      <div class="card" onclick="openModal(${c.id})" style="animation-delay:${i*0.06}s">
+        <div class="card-accent-bar ${pal}"></div>
+        <div class="card-body">
+          <span class="card-tag">${c.cat}</span>
+          <div class="card-title">${escHtml(c.title)}</div>
+          <div class="card-desc">${escHtml(c.desc)}</div>
+        </div>
+        <div class="card-footer">
+          <span class="domain">${getDomain(c.url)}</span>
+          <span class="btn-info">Ver más →</span>
+        </div>
+        <button class="card-delete" onclick="deleteCard(event,${c.id})" title="Eliminar card">✕</button>
+      </div>`;
+    }).join('');
+  }
+
+  function renderAll() { renderFilters(); renderGrid(); }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ─── AGREGAR ─────────────────────────────────────────────
+  function addCard() {
+    if (!isAdmin) return;
+    const title = document.getElementById('inp-title').value.trim();
+    const desc  = document.getElementById('inp-desc').value.trim();
+    const url   = document.getElementById('inp-url').value.trim();
+    const cat   = document.getElementById('inp-cat').value;
+    if (!title || !url) {
+      const inp = !title ? 'inp-title' : 'inp-url';
+      document.getElementById(inp).style.borderColor = '#ff6464';
+      setTimeout(() => document.getElementById(inp).style.borderColor = '', 1200);
+      return;
+    }
+    cards.unshift({ id: nextId++, title, desc: desc || 'Sin descripción.', url, cat });
+    document.getElementById('inp-title').value = '';
+    document.getElementById('inp-desc').value = '';
+    document.getElementById('inp-url').value = '';
+    renderAll();
+  }
+
+  // ─── ELIMINAR ────────────────────────────────────────────
+  function deleteCard(e, id) {
+    e.stopPropagation();
+    if (!isAdmin) return;
+    const card = cards.find(c => c.id === id);
+    if (!confirm(`¿Eliminar "${card?.title}"?`)) return;
+    cards = cards.filter(c => c.id !== id);
+    renderAll();
+  }
+
+  // ─── EXPORTAR CÓDIGO ─────────────────────────────────────
+  function exportCode() {
+    const dataStr = JSON.stringify(cards, null, 4)
+      .replace(/"([^"]+)":/g, '$1:');
+    const snippet = `  const CARDS_DATA = ${dataStr};`;
+    navigator.clipboard.writeText(snippet).then(() => {
+      alert('✅ ¡Código copiado!\n\nPega este bloque en tu index.html reemplazando la sección "const CARDS_DATA = [...]" y sube el archivo a GitHub.');
+    }).catch(() => {
+      prompt('Copia este código:', snippet);
+    });
+  }
+
+  // ─── MODAL CARD ──────────────────────────────────────────
+  function openModal(id) {
+    const c = cards.find(x => x.id === id);
+    if (!c) return;
+    document.getElementById('modal-bar').className = 'modal-accent ' + getPalette(c.id);
+    document.getElementById('modal-tag').textContent = c.cat;
+    document.getElementById('modal-title').textContent = c.title;
+    document.getElementById('modal-desc').textContent = c.desc;
+    document.getElementById('modal-url').textContent = getDomain(c.url);
+    document.getElementById('modal-link').href = c.url;
+    document.getElementById('modal-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal(e) {
+    if (e.target === document.getElementById('modal-overlay')) closeModalDirect();
+  }
+
+  function closeModalDirect() {
+    document.getElementById('modal-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModalDirect(); closePwModal(); } });
+
+  // ─── QR ──────────────────────────────────────────────────
+  function generateQR() {
+    const url = document.getElementById('qr-url').value.trim();
+    if (!url) return;
+    const container = document.getElementById('qr-canvas');
+    container.innerHTML = '';
+    container.style.display = 'block';
+    new QRCode(container, {
+      text: url, width: 180, height: 180,
+      colorDark: '#0a0a0f', colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.H
+    });
+    document.getElementById('btn-dl').style.display = 'block';
+  }
+
+  function downloadQR() {
+    const canvas = document.querySelector('#qr-canvas canvas');
+    if (!canvas) return;
+    const link = document.createElement('a');
+    link.download = 'linkhub-qr.png';
+    link.href = canvas.toDataURL();
+    link.click();
+  }
+
+  // ─── INIT ─────────────────────────────────────────────────
+  renderAll();
+</script>
+</body>
+</html>
