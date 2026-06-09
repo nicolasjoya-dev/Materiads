@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LinkHub — Tu colección de recursos</title>
+  <title>LinkHub — Consulta Popular en Colombia</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,500;0,9..40,700;1,9..40,300&display=swap" rel="stylesheet"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
@@ -619,7 +619,7 @@
 <header>
   <div class="logo">Link<span>Hub</span></div>
   <div class="header-right">
-    <div class="header-meta">Tu colección de recursos</div>
+    <div class="header-meta">Consulta Popular en Colombia</div>
     <button class="btn-admin-toggle" id="btn-admin-toggle" onclick="requestAdmin()">
       <span class="admin-badge"></span> Admin
     </button>
@@ -647,13 +647,12 @@
       <div class="field">
         <label>Categoría</label>
         <select id="inp-cat">
-          <option value="General">General</option>
-          <option value="Diseño">Diseño</option>
-          <option value="Desarrollo">Desarrollo</option>
-          <option value="Marketing">Marketing</option>
-          <option value="Educación">Educación</option>
-          <option value="Herramientas">Herramientas</option>
+          <option value="Participación ciudadana">Participación ciudadana</option>
+          <option value="Marco legal">Marco legal</option>
+          <option value="Casos destacados">Casos destacados</option>
+          <option value="Jurisprudencia">Jurisprudencia</option>
           <option value="Noticias">Noticias</option>
+          <option value="General">General</option>
         </select>
       </div>
       <button class="btn-add full" onclick="addCard()">+ Agregar Card</button>
@@ -677,7 +676,7 @@
   <div class="qr-section">
     <div class="qr-left">
       <h3>Genera tu QR</h3>
-      <p>Pon la URL de esta página (GitHub Pages, Netlify, etc.) y genera el código QR para compartirla. Quien lo escanee verá todas tus cards.</p>
+      <p>Pon la URL de esta página (GitHub Pages, Netlify, etc.) y genera el código QR para compartirla. Quien lo escanee verá todos los recursos sobre la Consulta Popular.</p>
       <div class="qr-input-row">
         <input type="url" id="qr-url" placeholder="https://tu-sitio.com" />
         <button class="btn-qr" onclick="generateQR()">Generar</button>
@@ -736,24 +735,31 @@
   const CARDS_DATA = [
     {
       id: 1,
-      title: 'MDN Web Docs',
-      desc: 'La referencia más completa sobre tecnologías web: HTML, CSS, JavaScript y mucho más. Ideal para desarrolladores de todos los niveles.',
-      url: 'https://developer.mozilla.org',
-      cat: 'Desarrollo'
+      title: '¿Qué es una Consulta Popular?',
+      desc: 'La consulta popular es un mecanismo de participación ciudadana que permite a los colombianos pronunciarse directamente sobre decisiones de interés nacional, departamental o municipal. La Registraduría Nacional explica su definición, requisitos y procedimiento.',
+      url: 'https://www.registraduria.gov.co/Que-es-una-consulta-popular.html',
+      cat: 'Participación ciudadana'
     },
     {
       id: 2,
-      title: 'Figma',
-      desc: 'Herramienta de diseño colaborativo en la nube para interfaces, prototipos y sistemas de diseño. Estándar de la industria.',
-      url: 'https://figma.com',
-      cat: 'Diseño'
+      title: 'Caso Cajamarca: el "No" a la minería',
+      desc: 'En 2017, los habitantes de Cajamarca, Tolima, dijeron "No" mediante consulta popular a la ejecución de proyectos mineros y petroleros en su territorio. Fue la primera consulta popular ambiental exitosa en Colombia y marcó un precedente histórico.',
+      url: 'https://www.registraduria.gov.co/Habitantes-de-Cajamarca-Tolima-dijeron-No-a-la-ejecucion-de-proyectos-y.html',
+      cat: 'Casos destacados'
     },
     {
       id: 3,
-      title: 'Coolors',
-      desc: 'Generador de paletas de colores rápido y hermoso. Crea, guarda y comparte esquemas de colores perfectos para tus proyectos.',
-      url: 'https://coolors.co',
-      cat: 'Herramientas'
+      title: 'Base legal: Constitución Política de 1991',
+      desc: 'Los artículos 103 y siguientes de la Constitución Política de Colombia establecen los mecanismos de participación del pueblo, entre ellos la consulta popular. Esta es la fuente normativa principal que respalda y regula su uso en todo el territorio nacional.',
+      url: 'http://www.secretariasenado.gov.co/senado/basedoc/constitucion_politica_1991_pr003.html',
+      cat: 'Marco legal'
+    },
+    {
+      id: 4,
+      title: 'Sentencia T-760 de 2008',
+      desc: 'Histórica sentencia de la Corte Constitucional colombiana que, aunque se centra en el derecho a la salud, establece principios clave sobre derechos fundamentales y participación. Referente jurisprudencial fundamental para entender la protección de derechos colectivos vía acción de tutela.',
+      url: 'https://www.corteconstitucional.gov.co/relatoria/2008/t-760-08.htm',
+      cat: 'Jurisprudencia'
     }
   ];
   // ────────────────────────────────────────────────────────────
